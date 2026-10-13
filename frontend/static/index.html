@@ -437,13 +437,27 @@ function formatMarkdown(text) {
     let lower = text.toLowerCase();
     let bgStyle = 'background: rgba(79, 70, 229, 0.15); border-left: 4px solid #6366f1; color: #e2e8f0;';
     if (lower.includes('baby pink') || lower.includes('pink') || lower.includes('10')) {
-      bgStyle = 'background: #FBCFE8; border-left: 4px solid #DB2777; color: #831843; font-weight: 500;';
+      bgStyle = 'background: #FBCFE8; border-left: 4px solid #DB2777; color: #831843; font-weight: bold;';
     } else if (lower.includes('light blue') || lower.includes('blue') || lower.includes('60')) {
-      bgStyle = 'background: #BAE6FD; border-left: 4px solid #0284C7; color: #0C4A6E; font-weight: 500;';
+      bgStyle = 'background: #BAE6FD; border-left: 4px solid #0284C7; color: #0C4A6E; font-weight: bold;';
     } else if (lower.includes('light yellow') || lower.includes('yellow') || lower.includes('30')) {
-      bgStyle = 'background: #FEF08A; border-left: 4px solid #CA8A04; color: #713F12; font-weight: 500;';
+      bgStyle = 'background: #FEF08A; border-left: 4px solid #CA8A04; color: #713F12; font-weight: bold;';
     }
-    return `<blockquote style="${bgStyle}; padding: 0.75rem 1rem; border-radius: 8px; margin: 0.6rem 0;">${content}</blockquote>`;
+    return `<blockquote style="${bgStyle}; padding: 0.75rem 1rem; border-radius: 8px; margin: 0.6rem 0;"><strong>${content}</strong></blockquote>`;
+  });
+
+  // Also style inline list items containing Database Suggestion
+  html = html.replace(/<li>(<strong>Database Suggestion:<\/strong>\s*)(.*?)<\/li>/gi, function(match, prefix, content) {
+    let lower = text.toLowerCase();
+    let bgStyle = 'background: rgba(79, 70, 229, 0.15); color: #e2e8f0;';
+    if (lower.includes('baby pink') || lower.includes('pink') || lower.includes('10')) {
+      bgStyle = 'background: #FBCFE8; color: #831843;';
+    } else if (lower.includes('light blue') || lower.includes('blue') || lower.includes('60')) {
+      bgStyle = 'background: #BAE6FD; color: #0C4A6E;';
+    } else if (lower.includes('light yellow') || lower.includes('yellow') || lower.includes('30')) {
+      bgStyle = 'background: #FEF08A; color: #713F12;';
+    }
+    return `<li>${prefix}<strong style="${bgStyle}; padding: 2px 8px; border-radius: 6px; display: inline-block;">${content}</strong></li>`;
   });
 
   return html;

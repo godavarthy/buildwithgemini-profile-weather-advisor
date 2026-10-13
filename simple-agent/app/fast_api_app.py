@@ -336,17 +336,15 @@ async def serve_ui():
                 <span class="status-pill" id="statusPill">Validated</span>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;" id="profileHeader">
-                <img id="valPhoto" src="" alt="Cartoon Avatar" style="display: none; width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 2px solid #CBD5E1; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                <div class="grid" id="detailsGrid" style="grid-template-columns: 1fr 1fr; flex: 1; margin-bottom: 0;">
-                    <div><span class="label">Name: </span><span class="value" id="valName">-</span></div>
-                    <div><span class="label">Age: </span><span class="value" id="valAge">-</span></div>
+            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;" id="profileHeader">
+                <img id="valPhoto" src="" alt="Cartoon Avatar" style="display: none; width: 90px; height: 90px; border-radius: 14px; object-fit: cover; border: 2px solid #CBD5E1; box-shadow: 0 4px 10px rgba(0,0,0,0.12);">
+                <div style="flex: 1;">
+                    <ul id="profilePoints" style="margin: 0 0 0 16px; padding: 0; line-height: 1.8; font-size: 14px; color: #1E293B;">
+                        <li><strong>Name:</strong> <span id="valName" class="value">-</span></li>
+                        <li><strong>Age:</strong> <span id="valAge" class="value">-</span></li>
+                        <li><strong>Database Suggestion:</strong> <strong id="valSuggestion" style="padding: 2px 8px; border-radius: 6px; display: inline-block;">-</strong></li>
+                    </ul>
                 </div>
-            </div>
-
-            <div class="box" id="suggestionBox" style="transition: all 0.3s ease;">
-                <div class="box-title">💡 Database Suggestion:</div>
-                <div id="suggestionText">-</div>
             </div>
 
             <div class="box" id="weatherBox">
@@ -393,19 +391,20 @@ async def serve_ui():
                 card.style.display = 'block';
                 if (data.valid) {
                     const rec = data.record;
-                    // Apply designated bg_color to Database Suggestion box
                     const bgColor = data.bg_color_hex || '#FEF08A';
-                    suggestionBox.style.backgroundColor = bgColor;
-                    suggestionBox.style.borderColor = 'rgba(0,0,0,0.15)';
-                    suggestionBox.style.color = '#0F172A';
 
                     document.getElementById('cardName').innerText = rec.name;
                     document.getElementById('statusPill').className = 'status-pill status-valid';
                     document.getElementById('statusPill').innerText = 'Verified in DB';
 
-                    // Show ONLY name, age, and cartoon photo
+                    // Show name, age, cartoon photo, and bold DB suggestion with bg_color applied
                     document.getElementById('valName').innerText = rec.name;
                     document.getElementById('valAge').innerText = (rec.age || '-') + ' years';
+
+                    const sugEl = document.getElementById('valSuggestion');
+                    sugEl.innerText = data.suggestion;
+                    sugEl.style.backgroundColor = bgColor;
+                    sugEl.style.color = '#0F172A';
 
                     const photoEl = document.getElementById('valPhoto');
                     if (rec.photo) {
@@ -415,25 +414,18 @@ async def serve_ui():
                         photoEl.style.display = 'none';
                     }
 
-                    document.getElementById('suggestionText').innerText = data.suggestion;
-
                     const w = data.weather;
                     document.getElementById('wCondition').innerText = w.condition;
                     document.getElementById('wTemp').innerText = `${w.temperature_celsius}°C`;
                     document.getElementById('wHumidity').innerText = `${w.humidity_percent}%`;
                     document.getElementById('wActivity').innerText = w.suggested_activity;
-                    document.getElementById('detailsGrid').style.display = 'grid';
+                    document.getElementById('profilePoints').style.display = 'block';
                 } else {
-                    suggestionBox.style.backgroundColor = '#FEE2E2';
-                    suggestionBox.style.borderColor = '#FCA5A5';
-                    suggestionBox.style.color = '#991B1B';
-
                     document.getElementById('cardName').innerText = name;
                     document.getElementById('statusPill').className = 'status-pill status-invalid';
                     document.getElementById('statusPill').innerText = 'Not Found';
 
-                    document.getElementById('detailsGrid').style.display = 'none';
-                    document.getElementById('suggestionText').innerText = data.message;
+                    document.getElementById('profilePoints').style.display = 'none';
 
                     const w = data.weather;
                     document.getElementById('wCondition').innerText = w.condition;

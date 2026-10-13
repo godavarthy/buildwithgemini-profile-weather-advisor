@@ -15,6 +15,7 @@
 
 import json
 import os
+import re
 import urllib.request
 from typing import Any, Dict, Optional
 from google.cloud import firestore
@@ -204,9 +205,12 @@ if os.path.exists(deployment_metadata_file):
         pass
 
 code_executor_kwargs = {}
-if sandbox_resource_name:
+sandbox_pattern = r"^projects/([a-zA-Z0-9-_]+)/locations/([a-zA-Z0-9-_]+)/reasoningEngines/(\d+)/sandboxEnvironments/(\d+)$"
+agent_engine_pattern = r"^projects/([a-zA-Z0-9-_]+)/locations/([a-zA-Z0-9-_]+)/reasoningEngines/(\d+)$"
+
+if sandbox_resource_name and re.fullmatch(sandbox_pattern, sandbox_resource_name):
     code_executor_kwargs["sandbox_resource_name"] = sandbox_resource_name
-elif agent_engine_resource_name:
+elif agent_engine_resource_name and re.fullmatch(agent_engine_pattern, agent_engine_resource_name):
     code_executor_kwargs["agent_engine_resource_name"] = agent_engine_resource_name
 
 code_executor = AgentEngineSandboxCodeExecutor(**code_executor_kwargs)
@@ -225,16 +229,19 @@ root_agent = Agent(
         "2. From the validation result, note the user's age and cartoon photo URL. "
         "3. Call get_hyderabad_weather_and_outdoor_activity(age=...) passing the user's exact age so the outdoor activity is specifically tailored to their age group (kids/10y, young adults/30y, or seniors/60y) rather than being identical for everyone. "
         "4. Provide a focused response containing: "
-        "   - User Name and Age (do NOT output govt_id or allow_social_media). "
         "   - Cartoon Profile Image: If the record contains a 'photo' URL, always display it nicely at the top of the profile using markdown: ![Cartoon Profile Photo](<photo_url>) "
-        "   - The Database Suggestion line with their designated bg_color applied (e.g. styled or highlighted with their profile's bg_color: baby pink, light blue, or light yellow). "
+        "   - Uncluttered Profile Points: "
+        "     * **Name:** <user name> "
+        "     * **Age:** <user age> "
+        "     * **Database Suggestion:** **<db suggestion>** (styled or highlighted with their profile's bg_color: baby pink, light blue, or light yellow) "
+        "   (Do NOT output govt_id or allow_social_media). "
         "   - Current Hyderabad Weather & Outdoor Activity section uncluttered and formatted as clean, concise bullet points: "
         "     * **Location:** Hyderabad, India "
         "     * **Condition:** <weather condition> "
         "     * **Temperature:** <temp>°C "
         "     * **Humidity:** <humidity>% "
         "     * **Outdoor Activity:** <tailored activity recommendation> "
-        "Do not write long rambling paragraphs under the weather section; keep it strictly to these clean bullet points. "
+        "Do not write long rambling paragraphs; keep both the profile info and the weather section strictly to these clean bullet points. "
         "If the user is not found, politely report that they are not in the database and state that access could not be validated. "
         "You also have Python code execution enabled via a secure sandbox to run calculations, data manipulation, or code when needed."
     ),
